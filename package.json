@@ -10,8 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "botkit": "0.0.12",
-    "mysql": "^2.10.2",
-    "sequelize": "^3.20.0"
+    "mysql": "^2.10.2"
   },
   "devDependencies": {
     "tslint": "^3.6.0",
