@@ -1,0 +1,21 @@
+{
+  "name": "simekiri-bot",
+  "version": "0.0.1",
+  "description": "HX simekiri bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shumpei Shiraishi",
+  "license": "ISC",
+  "dependencies": {
+    "botkit": "0.0.12",
+    "mysql": "^2.10.2",
+    "sequelize": "^3.20.0"
+  },
+  "devDependencies": {
+    "tslint": "^3.6.0",
+    "typescript": "^1.8.9",
+    "typings": "^0.7.9"
+  }
+}
