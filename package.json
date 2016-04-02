@@ -4,17 +4,28 @@
   "description": "HX simekiri bot",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node $npm_package_main",
+    "build": "tsc -p .",
+    "watch:build": "tsc -w -p ."
   },
   "author": "Shumpei Shiraishi",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.3.4",
     "botkit": "0.0.12",
-    "mysql": "^2.10.2"
+    "command-line-args": "^2.1.6",
+    "es6-promise": "^3.1.2",
+    "es6-shim": "^0.35.0",
+    "lodash": "^4.7.0",
+    "minimist": "^1.2.0",
+    "moment": "^2.12.0",
+    "mysql": "^2.10.2",
+    "sequelize": "^3.20.0"
   },
   "devDependencies": {
     "tslint": "^3.6.0",
     "typescript": "^1.8.9",
-    "typings": "^0.7.9"
+    "typings": "^0.7.9",
+    "watch": "^0.17.1"
   }
 }

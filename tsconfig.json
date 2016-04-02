@@ -4,17 +4,22 @@
     "module": "commonjs",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "outDir": "./lib",
+    "rootDir": "./ts",
+    "allowJs": true
   },
   "exclude": [
-  ],
-  "filesGlob": [
-    "./**/*.ts",
     "typings/main.d.ts",
-    "typings/browser.d.ts"
+    "typings/main",
+    "node_modules"
   ],
-  "compileOnSave": true,
-  "buildOnSave": true,
+  "files": [
+    "./ts/bot.ts",
+    "typings/main.d.ts"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false,
   "atom": {
     "rewriteTsconfig": false
   }

@@ -67,7 +67,7 @@
     "no-unused-variable": true,
     "no-use-before-declare": true,
     "no-var-keyword": true,
-    "no-var-requires": true,
+    "no-var-requires": false,
     "object-literal-sort-keys": false,
     "one-line": [
       true,
@@ -125,10 +125,9 @@
       "check-module"
     ],
     "variable-name": [
-      true,
+      false,
       "check-format",
-      "allow-leading-underscore",
-      "ban-keywords"
+      "allow-leading-underscore"
     ],
     "whitespace": [
       true,

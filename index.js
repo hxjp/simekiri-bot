@@ -1,3 +1,1 @@
-"use strict";
-require('./bot');
-//# sourceMappingURL=index.js.map
+require('./lib/bot');
