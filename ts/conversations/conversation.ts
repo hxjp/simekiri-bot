@@ -1,16 +1,16 @@
-import {IStorage} from '../storage';
+import {Sequelize} from 'sequelize';
 
 
 export function createConversation(
   ctor: ConversationConstructor,
-  storage: IStorage,
-  controller: any) {
-  return new ctor(storage, controller);
+  sequelize: Sequelize,
+  controller: any): Conversation {
+  return new ctor(sequelize, controller);
 }
 
 export interface ConversationConstructor {
   new(
-    storage: IStorage,
+    sequelize: Sequelize,
     controller: any
   ): Conversation;
 }

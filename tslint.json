@@ -3,7 +3,6 @@
     "align": [
       true,
       "parameters",
-      "arguments",
       "statements"
     ],
     "ban": false,
@@ -74,7 +73,6 @@
       "check-open-brace",
       "check-catch",
       "check-else",
-      "check-finally",
       "check-whitespace"
     ],
     "quotemark": [
@@ -83,7 +81,7 @@
       "avoid-escape"
     ],
     "radix": true,
-    "semicolon": [true, "always"],
+    "semicolon": true,
     "switch-default": true,
     "trailing-comma": [
       false,
@@ -99,9 +97,7 @@
     "typedef": [
       true,
       "call-signature",
-      "parameter",
-      "property-declaration",
-      "member-variable-declaration"
+      "parameter"
     ],
     "typedef-whitespace": [
       true,
@@ -123,11 +119,6 @@
     "use-strict": [
       true,
       "check-module"
-    ],
-    "variable-name": [
-      false,
-      "check-format",
-      "allow-leading-underscore"
     ],
     "whitespace": [
       true,
