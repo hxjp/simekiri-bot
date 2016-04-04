@@ -1,5 +1,11 @@
-import {createConversation, ConversationConstructor, OnAddMessage}  from './conversations';
+import {createConversation, ALL_CONVERSATIONS}  from './conversations';
 import * as Sequelize from 'sequelize';
+import {UserType, ScheduleStatus} from './constants';
+
+// Sequelizeのトランザクションを、全てのクエリで自動的に利用する設定
+// http://docs.sequelizejs.com/en/latest/docs/transactions/#automatically-pass-transactions-to-all-queries
+const cls = require('continuation-local-storage');
+Sequelize.cls = cls.createNamespace('hx');
 
 const botkit = require('botkit');
 
@@ -14,7 +20,7 @@ const controller = botkit.slackbot({
 });
 
 controller.spawn({token})
-  .startRTM(function(err: Error): void {
+  .startRTM(function(err: any): void {
     if (err) {
       throw new Error(err);
     }
@@ -40,7 +46,13 @@ const User = sequelize.define('User', {
   {
     timestamps: true
   });
-
+User['findOrCreateUserBySlackId'] = function(slackId: string, type: UserType): Promise<any> {
+  return User.findOrCreate({
+      where: {slackId},
+      defaults: {type}
+    })
+    .then(results => results[0]);
+};
 const Schedule = sequelize.define('Schedule', {
   id: {
     type: Sequelize.INTEGER,
@@ -70,6 +82,11 @@ const Schedule = sequelize.define('Schedule', {
       model: User,
       key: 'id'
     }
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: ScheduleStatus.ACTIVE
   }
 },
   {
@@ -81,11 +98,7 @@ Schedule.belongsTo(User, {as: 'writer', foreignKey: 'writer_id'});
 Schedule.belongsTo(User, {as: 'editor', foreignKey: 'editor_id'});
 sequelize.sync({force: true});
 
-const conversations: ConversationConstructor[] = [
-  OnAddMessage
-];
-
-for (const conversationClass of conversations) {
+for (const conversationClass of ALL_CONVERSATIONS) {
   const conversation = createConversation(conversationClass, sequelize, controller);
   conversation.start();
 }

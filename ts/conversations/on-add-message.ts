@@ -1,24 +1,24 @@
 import {OnMessage} from './on-message';
-import {format} from 'util';
-import {Sequelize, Model, Transaction} from 'sequelize';
+import {Sequelize, Model} from 'sequelize';
+import {UserType, INPUT_DATE_FORMATS} from '../constants';
+import {findOrCreateUserBySlackId, formatSchedule} from './util';
 
 const commandlineArgs = require('command-line-args');
 const moment = require('moment');
 
-const ALLOWED_DATE_FORMATS = ['YYYY-MM-DD', 'YYYY/MM/DD', 'MM-DD', 'MM/DD'];
-
 const usage = `
 usage:
-       add [-t | --title] <タイトル>
-           [-d | --deadline] <シメキリ>
-           [-w | --writer] @<書く人>
+       add    [(-t | --title) <タイトル>]
+              [(-d | --deadline) <シメキリ>]
+              [(-w | --writer) @<書く人>]
+              [(-e | --editor) @<担当者>]
 `;
 
 const parser = commandlineArgs([
   {name: 'title', alias: 't', type: String,
     description: '記事の仮タイトル'},
   {name: 'deadline', alias: 'd', type: String,
-    description: `シメキリ。形式: ${ALLOWED_DATE_FORMATS.join(' or ')}`},
+    description: `シメキリ。形式: ${INPUT_DATE_FORMATS.join(' or ')}`},
   {name: 'writer', alias: 'w', type: String},
 ]);
 
@@ -34,7 +34,7 @@ function parseMessage(line: string): {
     !options.writer) {
     throw new Error();
   }
-  const deadline = moment(options.deadline, ALLOWED_DATE_FORMATS).toDate();
+  const deadline = moment(options.deadline, INPUT_DATE_FORMATS).toDate();
   let writerSlackId = options.writer;
   if (/\<\@(.+)\>/.test(writerSlackId)) {
     writerSlackId = RegExp.$1;
@@ -46,10 +46,6 @@ function parseMessage(line: string): {
   };
 }
 
-const enum UserType {
-  EDITOR = 0,
-  WRITER = 1,
-}
 export class OnAddMessage extends OnMessage {
   private User: Model<any, any>;
   private Schedule: Model<any, any>;
@@ -78,11 +74,11 @@ export class OnAddMessage extends OnMessage {
       bot.reply(message, 'コマンド間違ってますよ\n' + usage);
       return;
     }
-    this.sequelize.transaction(transaction => {
+    this.sequelize.transaction(() => {
       const editorSlackId = message.user;
       return Promise.all([
-        this.findOrCreateUserBySlackId(editorSlackId, UserType.EDITOR, transaction),
-        this.findOrCreateUserBySlackId(params.writerSlackId, UserType.WRITER, transaction)
+        findOrCreateUserBySlackId(this.User, editorSlackId, UserType.EDITOR),
+        findOrCreateUserBySlackId(this.User, params.writerSlackId, UserType.WRITER)
       ])
       .then((results: any[]) => {
         const editor = results[0];
@@ -91,20 +87,15 @@ export class OnAddMessage extends OnMessage {
         return this.Schedule.create({
           title: params.title,
           deadline: params.deadline,
-          'writer_id': writer.id,
-          'editor_id': editor.id
-        }, {transaction});
-      })
-      .then(schedule => {
-        bot.reply(message, format('Add command received: %j', schedule));
+          'writer_id': writer.get('id'),
+          'editor_id': editor.get('id')
+        })
+          .then(schedule => {
+            schedule.writer = writer;
+            schedule.editor = editor;
+            bot.reply(message, `シメキリが追加されました！\n${formatSchedule(schedule)}`);
+          });
       });
-    });
-  }
-  private findOrCreateUserBySlackId(slackId: string, type: UserType, transaction: Transaction): Promise<any> {
-    return this.User.findOrCreate({
-      where: {slackId},
-      defaults: {type},
-      transaction
     });
   }
 }
