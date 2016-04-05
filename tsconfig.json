@@ -5,11 +5,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
+    "rootDir": "./ts",
     "outDir": "./es6",
-    "rootDir": ".",
     "allowJs": true
   },
   "exclude": [
+    "index.js",
     "lib",
     "es6",
     "typings/main.d.ts",

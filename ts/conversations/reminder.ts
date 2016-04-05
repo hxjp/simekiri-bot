@@ -6,12 +6,13 @@ const {CronJob} = require('cron');
 import {formatSchedule} from './util';
 const CRON_TIMINGS = '00 08 * * * *';
 
-interface ReminderTask {
+export interface ReminderTask {
   getKind(): string;
   shouldSendReminder(schedule: any): Promise<boolean>;
+  getNotificationMessage(schedule: any): string;
 }
 
-class BasicReminderTask implements ReminderTask {
+export class BasicReminderTask implements ReminderTask {
   constructor(
     private reminderDateRelative: number
   ) {
@@ -32,9 +33,7 @@ class BasicReminderTask implements ReminderTask {
     if (!this.isNotifyTiming(schedule)) {
       return Promise.resolve(false);
     }
-    // Notificationテーブル
-    // schedule_id, type("-1w", "-3d", "-1d", "1d"), notifiedAt
-    const notifications: any[] = schedule.getSchedules();
+    const notifications: any[] = schedule.notifications;
     for (let notification of notifications) {
       // 既に通知済み
       if (notification.kind === this.getKind()) {
@@ -60,7 +59,7 @@ ${formatSchedule(schedule)}
   }
 }
 
-const REMINDER_TASKS: ReminderTask[] = [
+const DEFAULT_REMINDER_TASKS: ReminderTask[] = [
   new BasicReminderTask(-7), // 1週間前
   new BasicReminderTask(-3), // 3日前
   new BasicReminderTask(0),  // シメキリ当日
@@ -68,25 +67,30 @@ const REMINDER_TASKS: ReminderTask[] = [
 ];
 
 export class Reminder implements Conversation {
-  private job: any;
   private User: Model<any, any>;
   private Schedule: Model<any, any>;
   private Notification: Model<any, any>;
 
   constructor(
     private sequelize: Sequelize,
-    private bot: any
+    private bot: any,
+    private reminderTasks: ReminderTask[] = DEFAULT_REMINDER_TASKS,
+    private job?: any,
+    private targetSlackChannel: string = '#bot-test'
   ) {
     this.User = <any> sequelize.model('User');
     this.Schedule = <any> sequelize.model('Schedule');
     this.Notification = <any> sequelize.model('Notification');
-
-    this.job = new CronJob({
-      cronTime: CRON_TIMINGS,
-      onTick: this.onTick.bind(this),
-      start: false,
-      timezone: 'Asia/Tokyo'
-    });
+    if (this.job) {
+      this.job.addCallback(this.onTick.bind(this));
+    } else {
+      this.job = new CronJob({
+        cronTime: CRON_TIMINGS,
+        onTick: this.onTick.bind(this),
+        start: false,
+        timezone: 'Asia/Tokyo'
+      });
+    }
   }
 
   start(): void {
@@ -94,7 +98,6 @@ export class Reminder implements Conversation {
   }
 
   onTick(): Promise<any> {
-    // const now = new Date();
     // 1週間前, 3日前, 前日, 締切翌日に通知
     // 有効な締切一つ一つに対して、現在日時が通知日時を過ぎていないかをチェックし、
     // 過ぎていたら、通知済みじゃないかどうかをチェックし、
@@ -104,13 +107,13 @@ export class Reminder implements Conversation {
         status: ScheduleStatus.ACTIVE
       },
       include: [
-        {model: this.Notification},
+        {model: this.Notification, as: 'notifications'},
         {model: this.User, as: 'writer'},
         {model: this.User, as: 'editor'},
       ]
     })
       .then(schedules => {
-        this._sendAll(schedules);
+        return this._sendAll(schedules);
       });
   }
   private _sendAll(schedules: any[]): Promise<any> {
@@ -118,7 +121,7 @@ export class Reminder implements Conversation {
     return (async function(): Promise<any[]> {
       const notifications: any[] = [];
       for (let schedule of schedules) {
-        for (let reminderTask of REMINDER_TASKS) {
+        for (let reminderTask of self.reminderTasks) {
           const shouldSend = await reminderTask.shouldSendReminder(schedule);
           if (shouldSend) {
             notifications.push(await self.sendReminder(schedule, reminderTask));
@@ -132,8 +135,8 @@ export class Reminder implements Conversation {
   private sendReminder(schedule: any, reminderTask: ReminderTask): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       this.bot.sendWebhook({
-        text: 'Hello from reminder',
-        channel: '#bot-test'
+        text: reminderTask.getNotificationMessage(schedule),
+        channel: this.targetSlackChannel
       }, (err, response) => {
         if (err) {
           reject(err);
