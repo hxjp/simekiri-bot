@@ -6,10 +6,10 @@ npm run build
 
 ### 実行
 このアプリケーションを実行するには、[シメキリbotの設定画面](https://html5exp.slack.com/services/B0VD9R144)でAPIトークンを取得し、コマンドラインパラメータに指定する必要がある。
-
+また、`--database-url`オプションを使用して、データベースのURLを指定する必要もある。
 ```
 # アプリケーションに渡すコマンドライン引数は、"--"の後に記述する
-npm start -- --token <SlackのAPIトークン>
+npm start -- --token <SlackのAPIトークン> --database-url <データベースのURL。例: mysql://user:pass@localhost:3306/hx>
 ```
 
 
