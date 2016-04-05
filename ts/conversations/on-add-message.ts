@@ -52,9 +52,9 @@ export class OnAddMessage extends OnMessage {
 
   constructor(
     protected sequelize: Sequelize,
-    protected controller: any
+    protected bot: any
   ) {
-    super(sequelize, controller);
+    super(sequelize, bot);
     this.User = <any> sequelize.model('User');
     this.Schedule = <any> sequelize.model('Schedule');
   }

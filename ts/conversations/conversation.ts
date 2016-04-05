@@ -4,14 +4,14 @@ import {Sequelize} from 'sequelize';
 export function createConversation(
   ctor: ConversationConstructor,
   sequelize: Sequelize,
-  controller: any): Conversation {
-  return new ctor(sequelize, controller);
+  bot: any): Conversation {
+  return new ctor(sequelize, bot);
 }
 
 export interface ConversationConstructor {
   new(
     sequelize: Sequelize,
-    controller: any
+    bot: any
   ): Conversation;
 }
 /**

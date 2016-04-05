@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "outDir": "./lib",
-    "rootDir": "./ts",
+    "outDir": "./es6",
+    "rootDir": ".",
     "allowJs": true
   },
   "exclude": [
+    "lib",
+    "es6",
     "typings/main.d.ts",
     "typings/main",
     "node_modules"
   ],
-  "files": [
-    "./ts/bot.ts",
+  "filesGlob": [
+    "./ts/**/*.ts",
+    "./test/**/*.ts",
     "typings/main.d.ts"
   ],
   "compileOnSave": false,

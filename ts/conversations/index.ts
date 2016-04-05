@@ -2,6 +2,7 @@ import {OnAddMessage} from './on-add-message';
 import {OnCancelMessage} from './on-cancel-message';
 import {OnListMessage} from './on-list-message';
 import {OnUpdateMessage} from './on-update-message';
+import {Reminder} from './reminder';
 export * from './conversation';
 export * from './on-message';
 export * from './on-add-message';
@@ -11,5 +12,6 @@ export const ALL_CONVERSATIONS = [
   OnAddMessage,
   OnCancelMessage,
   OnListMessage,
-  OnUpdateMessage
+  OnUpdateMessage,
+  Reminder
 ];

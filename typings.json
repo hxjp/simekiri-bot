@@ -7,6 +7,7 @@
     "require": "github:DefinitelyTyped/DefinitelyTyped/requirejs/require.d.ts#853544cb7068af64bdb10ef1ae0c54d3aa3a80f6"
   },
   "dependencies": {
+    "bluebird": "registry:npm/bluebird#3.2.1+20160211005852",
     "es6-promise": "registry:npm/es6-promise#3.0.0+20160211003958"
   }
 }

@@ -1,6 +1,6 @@
 import {createConversation, ALL_CONVERSATIONS}  from './conversations';
 import * as Sequelize from 'sequelize';
-import {UserType, ScheduleStatus} from './constants';
+import {ScheduleStatus} from './constants';
 
 // Sequelizeのトランザクションを、全てのクエリで自動的に利用する設定
 // http://docs.sequelizejs.com/en/latest/docs/transactions/#automatically-pass-transactions-to-all-queries
@@ -19,7 +19,12 @@ const controller = botkit.slackbot({
   debug: false
 });
 
-controller.spawn({token})
+const bot = controller.spawn({
+  token,
+  incoming_webhook: {
+    url: 'https://hooks.slack.com/services/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'
+  }
+})
   .startRTM(function(err: any): void {
     if (err) {
       throw new Error(err);
@@ -46,13 +51,7 @@ const User = sequelize.define('User', {
   {
     timestamps: true
   });
-User['findOrCreateUserBySlackId'] = function(slackId: string, type: UserType): Promise<any> {
-  return User.findOrCreate({
-      where: {slackId},
-      defaults: {type}
-    })
-    .then(results => results[0]);
-};
+
 const Schedule = sequelize.define('Schedule', {
   id: {
     type: Sequelize.INTEGER,
@@ -92,14 +91,41 @@ const Schedule = sequelize.define('Schedule', {
   {
     timestamps: true
   });
+
+const Notification = sequelize.define('Notification', {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    schedule_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: Schedule,
+        key: 'id'
+      }
+    },
+    kind: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    timestamps: true
+  });
+
 User.hasMany(Schedule, {as: 'writer', foreignKey: 'writer_id'});
 User.hasMany(Schedule, {as: 'editor', foreignKey: 'editor_id'});
 Schedule.belongsTo(User, {as: 'writer', foreignKey: 'writer_id'});
 Schedule.belongsTo(User, {as: 'editor', foreignKey: 'editor_id'});
+Schedule.hasMany(Notification, {as: 'notification', foreignKey: 'schedule_id'});
+Notification.belongsTo(Schedule, {as: 'schedule', foreignKey: 'schedule_id'});
+
 sequelize.sync({force: true});
 
 for (const conversationClass of ALL_CONVERSATIONS) {
-  const conversation = createConversation(conversationClass, sequelize, controller);
+  const conversation = createConversation(conversationClass, sequelize, bot);
   conversation.start();
 }
 

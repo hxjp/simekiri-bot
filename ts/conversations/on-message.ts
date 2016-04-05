@@ -7,7 +7,7 @@ import {Sequelize} from 'sequelize';
 export abstract class OnMessage implements Conversation {
   constructor(
     protected sequelize: Sequelize,
-    protected controller: any
+    protected bot: any
   ) {
   }
   protected abstract getPatterns(): string[];
@@ -16,7 +16,7 @@ export abstract class OnMessage implements Conversation {
 
   start(): void {
     console.log('Message listening...%j', this.getPatterns());
-    this.controller.hears(
+    this.bot.botkit.hears(
       this.getPatterns(),
       this.getTypes(),
       this.onMessage.bind(this)
