@@ -2,6 +2,26 @@ import 'babel-polyfill';
 import {createConversation, ALL_CONVERSATIONS}  from './conversations';
 import * as Sequelize from 'sequelize';
 import {defineModels} from './models';
+import {Reminder} from './conversations/reminder';
+const commandlineArgs = require('command-line-args');
+
+const parser = commandlineArgs([
+  {name: 'force', alias: 'F', type: Boolean,
+    description: '強制的にDBスキーマを再作成するか'},
+  {name: 'token', alias: 't', type: String,
+    description: 'SlackのAPIトークン'},
+  {name: 'reminder-channel', alias: 'c', type: String,
+    description: 'リマインダを送信するチャネルの名称'},
+  {name: 'help', alias: 'h', type: Boolean,
+    description: 'ヘルプを表示する'},
+]);
+
+const options = parser.parse(process.argv);
+
+if (options.help) {
+  console.log(parser.getUsage());
+  process.exit(0);
+}
 
 // Sequelizeのトランザクションを、全てのクエリで自動的に利用する設定
 // http://docs.sequelizejs.com/en/latest/docs/transactions/#automatically-pass-transactions-to-all-queries
@@ -10,9 +30,9 @@ Sequelize.cls = cls.createNamespace('hx');
 
 const botkit = require('botkit');
 
-const token = process.env.token;
+const token = options.token;
 if (!token) {
-  console.log('Error: Specify token in environment');
+  console.log('トークンが指定されていません' + parser.getUsage());
   process.exit(1);
 }
 
@@ -38,10 +58,15 @@ const sequelize = new Sequelize('hx', 'shumpei', 'password', {
 });
 
 defineModels(sequelize);
-sequelize.sync({force: true});
+sequelize.sync({force: !!options.force});
 
 for (const conversationClass of ALL_CONVERSATIONS) {
-  const conversation = createConversation(conversationClass, sequelize, bot);
+  let conversation;
+  if (conversationClass === Reminder) {
+    conversation = new Reminder(sequelize, bot, undefined, undefined, options['reminder-channel'] || undefined);
+  } else {
+    conversation = createConversation(conversationClass, sequelize, bot);
+  }
   conversation.start();
 }
 

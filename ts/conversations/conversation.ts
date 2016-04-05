@@ -4,7 +4,8 @@ import {Sequelize} from 'sequelize';
 export function createConversation(
   ctor: ConversationConstructor,
   sequelize: Sequelize,
-  bot: any): Conversation {
+  bot: any
+): Conversation {
   return new ctor(sequelize, bot);
 }
 

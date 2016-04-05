@@ -5,8 +5,8 @@ export enum UserType {
 
 export enum ScheduleStatus {
   ACTIVE = 0,
-  CANCELED = 1,
-  DONE = 2,
+  DONE = 1,
+  CANCELED = 2,
 }
 
 export const INPUT_DATE_FORMATS: string[] = ['YYYY-MM-DD', 'YYYY/MM/DD', 'MM-DD', 'MM/DD'];

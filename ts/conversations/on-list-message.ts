@@ -21,7 +21,7 @@ export class OnListMessage extends OnMessage {
     this.Schedule = <any> sequelize.model('Schedule');
   }
   getPatterns(): string[] {
-    return ['^list'];
+    return ['^list', '^ls'];
   }
   getTypes(): string[] {
     return ['direct_mention'];
@@ -41,7 +41,10 @@ export class OnListMessage extends OnMessage {
       })
         .then((schedules: any[]) => {
           const list = schedules.map(schedule => formatSchedule(schedule));
-          const reply = `シメキリリスト\n${list.join('-----------------')}`;
+          const reply =
+            list.length > 0 ?
+              `シメキリリスト\n${list.join('-----------------')}` :
+              '現在アクティブなシメキリはありません。';
           bot.reply(message, reply);
         });
     });

@@ -1,12 +1,45 @@
+## ビルドと実行
+### ビルド
+```
+npm run build
+```
+
+### 実行
+このアプリケーションを実行するには、[シメキリbotの設定画面](https://html5exp.slack.com/services/B0VD9R144)でAPIトークンを取得し、コマンドラインパラメータに指定する必要がある。
+
+```
+# アプリケーションに渡すコマンドライン引数は、"--"の後に記述する
+npm start -- --token <SlackのAPIトークン>
+```
+
+
+その他のコマンドラインパラメータを確認するには、--helpオプションの出力を確認すること。
+
+```
+npm start -- -h
+```
+
+
+### ウォッチ＆ビルド（開発時）
+```
+npm run watch:build
+```
 ## 仕様
 このボットは、HXの運営を円滑にするために以下の機能を備える。
+
+### ヘルプ
+
+```
+@simekiri: help
+```
+
 ### 記事執筆予定の登録機能
 
 HX Slack上のいかなるチャネル上でも（DMを含む）、simekiri botにメンションすることで執筆予定の登録を行うことが出来る。
 メンションの形式は以下。
 
 ```
-@simekiri add <title> @<writer> [<date>]
+@simekiri add -t <title> -w @<writer> -d <date> [-e @<editor>]
 ```
 
 このメンションに対する応答は以下のようになる。
@@ -40,10 +73,9 @@ HX Slack上のいかなるチャネル上でも（DMを含む）、simekiri bot�
 
 執筆者の都合で、記事執筆予定を更新しなくてはならなくなった場合に、
 simekiri botに対して以下のメンションを行うことで予定を更新することが出来る。
-（現在のところ、日付以外は修正できない）
 
 ```
-@simekiri update <id> <date>
+@simekiri update -i <id> [-d <date>] [-t <title>]
 ```
 
 この操作は、編集者しか行うことができない。

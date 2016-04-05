@@ -10,8 +10,8 @@ export abstract class OnMessage implements Conversation {
     protected bot: any
   ) {
   }
-  protected abstract getPatterns(): string[];
-  protected abstract getTypes(): string[];
+  abstract getPatterns(): string[];
+  abstract getTypes(): string[];
   protected abstract onMessage(bot: any, message: any): void;
 
   start(): void {
