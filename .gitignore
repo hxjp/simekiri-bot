@@ -35,3 +35,5 @@ node_modules
 .idea
 
 es6
+lib
+typings
