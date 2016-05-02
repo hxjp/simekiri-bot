@@ -14,12 +14,12 @@ const parser = commandlineArgs([
     description: 'リマインダを送信するチャネルの名称'},
   {name: 'help', alias: 'h', type: Boolean,
     description: 'ヘルプを表示する'},
-  {name: 'database-url', type: String, required: true,
+  {name: 'database-url', alias: 'd', type: String, required: true,
     description: 'データベースのURL（例: mysql://user:pass@localhost:3306/hx）'},
 ]);
 
 const options = parser.parse(process.argv);
-
+// console.log(options);
 if (options.help) {
   console.log(parser.getUsage());
   process.exit(0);
@@ -75,5 +75,3 @@ for (const conversationClass of ALL_CONVERSATIONS) {
   }
   conversation.start();
 }
-
-
