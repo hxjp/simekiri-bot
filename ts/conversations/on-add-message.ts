@@ -2,6 +2,7 @@ import {OnMessage} from './on-message';
 import {Sequelize, Model} from 'sequelize';
 import {UserType, INPUT_DATE_FORMATS} from '../constants';
 import {findOrCreateUserBySlackId, formatSchedule} from './util';
+import {messages} from '../messages-ja';
 
 const commandlineArgs = require('command-line-args');
 const moment = require('moment');
@@ -71,7 +72,7 @@ export class OnAddMessage extends OnMessage {
     try {
       params = parseMessage(line);
     } catch (e) {
-      bot.reply(message, 'コマンド間違ってますよ\n' + usage);
+      bot.reply(message, `${messages.wrongCommand}\n${usage}`);
       return;
     }
     this.sequelize.transaction(() => {
@@ -93,7 +94,7 @@ export class OnAddMessage extends OnMessage {
           .then(schedule => {
             schedule.writer = writer;
             schedule.editor = editor;
-            bot.reply(message, `シメキリが追加されました！\n${formatSchedule(schedule)}`);
+            bot.reply(message, `${messages.deadlineAdded}\n${formatSchedule(schedule)}`);
           });
       });
     });

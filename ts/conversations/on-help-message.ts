@@ -1,6 +1,7 @@
 import {OnMessage} from './on-message';
 import {Sequelize, Model} from 'sequelize';
 import {Conversation} from './conversation';
+import {messages} from '../messages-ja';
 
 export class OnHelpMessage extends OnMessage {
   private User: Model<any, any>;
@@ -30,6 +31,6 @@ export class OnHelpMessage extends OnMessage {
         commands.push(conv.prototype.getPatterns().join('\n'));
       }
     });
-    bot.reply(message, '以下のコマンドが利用可能です:\n' + commands.join('\n'));
+    bot.reply(message, `${messages.availableCommands}:\n${commands.join('\n')}`);
   }
 }

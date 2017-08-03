@@ -2,8 +2,10 @@ import {Sequelize, Model} from 'sequelize';
 import * as moment from 'moment';
 import {Conversation} from './conversation';
 import {ScheduleStatus} from '../constants';
-const {CronJob} = require('cron');
 import {formatSchedule} from './util';
+import {messages} from '../messages-ja';
+import * as util from 'util';
+const {CronJob} = require('cron');
 const CRON_TIMINGS = '00 08 * * * *';
 
 export interface ReminderTask {
@@ -44,16 +46,20 @@ export class BasicReminderTask implements ReminderTask {
   }
   getNotificationMessage(schedule: any): string {
     const reminderDateRel = this.reminderDateRelative;
-    let dateStr: string;
+    let message: string;
     if (reminderDateRel === 0) {
-      dateStr = '当日';
-    } else if (reminderDateRel < 0) {
-      dateStr = `${Math.abs(reminderDateRel)}日前`;
-    } else if (reminderDateRel > 0) {
-      dateStr = `${Math.abs(reminderDateRel)}日後`;
+      message = `${messages.remindMessageToday}`;
+    } else if (reminderDateRel < -5) {
+      message = util.format(messages.remindMessageBefore1, `${Math.abs(reminderDateRel)}日`);
+    } else if (reminderDateRel < -2) {
+      message = util.format(messages.remindMessageBefore2, `${Math.abs(reminderDateRel)}日`);
+    } else if (reminderDateRel > 2) {
+      message = util.format(messages.remindMessageAfter1, `${Math.abs(reminderDateRel)}日`);
+    } else {
+      message = util.format(messages.remindMessageAfter2, `${Math.abs(reminderDateRel)}日`);
     }
     return `
-<@${schedule.writer.slackId}>【リマインダー】シメキリ${dateStr}です！執筆の状況はいかがですか？
+<@${schedule.writer.slackId}>${message}
 ${formatSchedule(schedule)}
     `;
   }

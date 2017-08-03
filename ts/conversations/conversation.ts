@@ -1,6 +1,5 @@
 import {Sequelize} from 'sequelize';
 
-
 export function createConversation(
   ctor: ConversationConstructor,
   sequelize: Sequelize,

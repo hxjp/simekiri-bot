@@ -2,6 +2,7 @@ import {OnMessage} from './on-message';
 import {Sequelize, Model} from 'sequelize';
 import {ScheduleStatus} from '../constants';
 import {formatSchedule} from './util';
+import {messages} from '../messages-ja';
 
 const usage = `
 usage:
@@ -29,7 +30,7 @@ export class OnDoneMessage extends OnMessage {
   protected onMessage(bot: any, message: any): void {
     const id = parseInt(message.match[1], 10);
     if (!id) {
-      return bot.reply(message, 'コマンド間違ってますよ\n' + usage);
+      return bot.reply(message, `${messages.wrongCommand}\n${usage}`);
     }
     const self = this;
     this.sequelize.transaction(async function(): Promise<any> {
@@ -39,12 +40,12 @@ export class OnDoneMessage extends OnMessage {
           {model: self.User, as: 'editor'}
         ]});
       if (!schedule) {
-        return bot.reply(message, 'IDが不正です[' + id + ']');
+        return bot.reply(message, `${messages.wrongDeadlineId}[${id}]`);
       }
       schedule.status = ScheduleStatus.DONE;
       schedule.status = ScheduleStatus.CANCELED;
       schedule =  await schedule.save();
-      bot.reply(message, `執筆が「完了」にマークされました。お疲れさまでした！: ${formatSchedule(schedule)}`);
+      bot.reply(message, `${messages.onTaskDone}: ${formatSchedule(schedule)}`);
     });
   }
 }
