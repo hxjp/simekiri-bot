@@ -2,6 +2,7 @@ import {OnMessage} from './on-message';
 import {Sequelize, Model} from 'sequelize';
 import {ScheduleStatus} from '../constants';
 import {formatSchedule} from './util';
+import {messages} from '../messages-ja';
 
 // const usage = `
 // usage:
@@ -41,10 +42,18 @@ export class OnListMessage extends OnMessage {
       })
         .then((schedules: any[]) => {
           const list = schedules.map(schedule => formatSchedule(schedule));
-          const reply =
-            list.length > 0 ?
-              `シメキリリスト\n${list.join('-----------------')}` :
-              '現在アクティブなシメキリはありません。';
+          const deadlines = list.join('-----------------');
+          const numDeadlines = list.length;
+          let reply;
+          if (numDeadlines === 0) {
+            reply = `${messages.deadlineListEmpty}`;
+          } else if (numDeadlines < 3) {
+            reply = `${messages.deadlineListFew}\n${deadlines}`;
+          } else if (numDeadlines < 5) {
+            reply = `${messages.deadlineListNormal}\n${deadlines}`;
+          } else {
+            reply = `${messages.deadlineListMany}\n${deadlines}`;
+          }
           bot.reply(message, reply);
         });
     });

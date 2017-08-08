@@ -3,6 +3,7 @@ import {Sequelize, Model} from 'sequelize';
 import * as moment from 'moment';
 import {INPUT_DATE_FORMATS, UserType} from '../constants';
 import {formatSchedule} from './util';
+import {messages} from '../messages-ja';
 
 const usage = `
 usage:
@@ -86,13 +87,12 @@ export class OnUpdateMessage extends OnMessage {
   }
 
   protected onMessage(bot: any, message: any): void {
-    console.log('update message:', message);
     const line: string = message.match[1];
     let params;
     try {
       params = parseMessage(line);
     } catch (e) {
-      bot.reply(message, 'コマンド間違ってますよ\n' + usage);
+      bot.reply(message, `${messages.wrongCommand}\n${usage}`);
       return;
     }
     const {id, title, deadline, editorSlackId, writerSlackId} = params;
@@ -105,7 +105,7 @@ export class OnUpdateMessage extends OnMessage {
         ]})
         .then(sche => {
           if (!sche) {
-            bot.reply(message, `IDが不正です:[${id}]`);
+            bot.reply(message, `${messages.wrongDeadlineId}[${id}]`);
             return Promise.reject(new Error('IDが不正です'));
           }
           schedule = sche;

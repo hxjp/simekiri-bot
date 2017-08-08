@@ -2,6 +2,7 @@ import {OnMessage} from './on-message';
 import {Sequelize, Model} from 'sequelize';
 import {ScheduleStatus} from '../constants';
 import {formatSchedule} from './util';
+import {messages} from '../messages-ja';
 
 const usage = `
 usage:
@@ -30,7 +31,7 @@ export class OnCancelMessage extends OnMessage {
   protected onMessage(bot: any, message: any): void {
     const id = parseInt(message.match[1], 10);
     if (!id) {
-      return bot.reply(message, 'コマンド間違ってますよ\n' + usage);
+      return bot.reply(message, `${messages.wrongCommand}\n${usage}`);
     }
     this.sequelize.transaction(() => {
       return this.Schedule.findById(id, {
@@ -39,15 +40,15 @@ export class OnCancelMessage extends OnMessage {
           {model: this.User, as: 'editor'}
         ]})
         .then(schedule => {
-          console.log(JSON.stringify(schedule));
+          // console.log(JSON.stringify(schedule));
           if (!schedule) {
-            return bot.reply(message, 'IDが不正です[' + id + ']');
+            return bot.reply(message, `${messages.wrongDeadlineId}[${id}]`);
           }
           schedule.status = ScheduleStatus.CANCELED;
           return schedule.save();
         })
         .then(schedule => {
-          bot.reply(message, `スケジュールがキャンセルされました。: ${formatSchedule(schedule)}`);
+          bot.reply(message, `${messages.deadlineCanceled}: ${formatSchedule(schedule)}`);
         });
     });
   }
